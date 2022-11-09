@@ -2,3 +2,7 @@
 .vs/Projet1/FileContentIndex/4ed29e9b-fd70-46be-a7df-07868058d27f.vsidx
 .vs/Projet1/FileContentIndex/read.lock
 .vs/Projet1/v17/.suo
+*.vsidx
+*.pyc
+.vs/Projet1/v17/fileList.bin
+Projet1.pyproj
