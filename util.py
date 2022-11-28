@@ -1,4 +1,3 @@
-import re
 import argparse
 from typing import TypeVar, Generic
 
@@ -18,6 +17,13 @@ class Option(Generic[T]):
     def __init__(self,nval=None) -> None:
         self.none = nval is None
         self.val = nval
+
+import builtins
+def get_type_by_name(type_name): 
+    try: 
+        return getattr(builtins, type_name) 
+    except AttributeError: 
+        return None 
 
 
 ########################################################

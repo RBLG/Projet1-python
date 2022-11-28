@@ -6,3 +6,5 @@
 *.pyc
 .vs/Projet1/v17/fileList.bin
 Projet1.pyproj
+proj1
+__pycache__

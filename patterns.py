@@ -1,8 +1,8 @@
-import re
+import regex
 
 #petit trick pour avoir des pattern regex sur plusieurs lignes
 def format(pattern:str)->str:
-    return re.sub("\r?\n *",'',pattern)
+    return regex.sub("\r?\n *",'',pattern)
 
 
 #######################################################################################
@@ -71,34 +71,63 @@ class
 (?:\#.*)?$
 """)
 
-#
-#
+#match le format "  def func_name(params)->return_type:
+#capture "func_name", "params" et "return type"
 DEF_FUNC:str =format(r"""
 ^[\t ]*
 def
 [\t ]+
-(?P<function_name>[a-zA-Z0-9_]+)
+(?P<func_name>[a-zA-Z0-9_]+)
+[\t ]*
 \(
 [\t ]*
-(?P<parameters>.*?)
+(?P<param_depth>
+  (?P<item>
+    [^()"#]*+
+    "[^"]*"
+    |
+    [^()#]*+
+    (?:
+      \(
+      (?&item)?
+      \)
+    )?
+  )*
+  [^()\#]*
+)
 [\t ]*
 \)
+[\t ]*
 (?:
-    [\t ]*
     ->
-    [\t ]*
-    (?P<return_type>
-        [a-zA-Z0-9_]+
+    (?P<return_type_sig>
+        (?P<return_type>[a-zA-Z0-9_]+)
+        [\t ]*
         (?:
             \[
             [\t ]*
-            [a-zA-Z0-9_]+
+            (?P<type_depth>
+                (?P<item2>
+                    [^\[\]"#]*+
+                    "
+                    [^"]*+
+                    "
+                    |
+                    [^\[\]#]*+
+                    (?:
+                        \[
+                        (?&item2)?
+                        \]
+                    )?
+                )*
+                [^\[\]\#\t ]*
+            )
             [\t ]*
             \]
         )?
     )
+    [\t ]*
 )?
-[\t ]*
 \:
 [\t ]*
 ;?
@@ -180,11 +209,36 @@ ACTION_LINE=format(r"""
 #
 #######################################################################################
 
+#matche 
+#
+DEEP_PARENTHESIS:str=format("""
+^\(
+[\t ]*
+(?P<depth>
+  (?P<item>
+    [^()"#]*+
+    "[^"]*"
+    |
+    [^()#]*+
+    (?:
+      \(
+      (?&item)?
+      \)
+    )?
+  )*
+  [^()\#\t ]*
+)
+[\t ]*
+\)
+[\t ]*
+(?P<remaining>.*)
+""")
+
+
 #
 #
 CHAIN:str =format(r"""
-^
-.
+^\.
 [\t ]*
 (?P<remaining>.*)
 """)
@@ -219,69 +273,105 @@ OPERATOR:str =format(r"""
 (?P<remaining>.*)
 """)
 
-#matche une descente dans les parentheses
-#
-PARENTHESIS_OPENNING:str =format(r"""
-^
-\(
-[\t ]*
-(?P<remaining>.*)
-""")
-
-#matche une remontee dans les parentheses
-#
-PARENTHESIS_CLOSING:str =format(r"""
-^
-\)
-[\t ]*
-(?P<remaining>.*)
-""")
-
 #match une declaration ou un appel a une variable
 #
 VAR_USE:str =format(r"""
 ^(?P<var_name>[a-zA-Z0-9_]+)
-    [\t ]*
 (?:
-    \:
     [\t ]*
-    (?P<unresolved_type_depth>.*)
-    |
-    (?P<remaining>.*)
-)
-
+    \:
+    (?P<type_sig>
+        [\t ]*
+        (?P<type_name>[a-zA-Z0-9_]+)
+        (?:
+            [\t ]*
+            \[
+            [\t ]*
+            (?P<type_depth>
+                (?P<item>
+                    [^\[\]"#]*+
+                    "
+                    [^"]*+
+                    "
+                    |
+                    [^\[\]#]*+
+                    (?:
+                        \[
+                        (?&item)?
+                        \]
+                    )?
+                )*
+                [^\[\]\#\t ]*
+            )
+            [\t ]*
+            \]
+        )?
+    )
+)?
+[\t ]*
+(?P<remaining>.*)
 """)
 
 #match une declaration ou un appel a une variable
 #
 TYPE_DEPTH:str =format(r"""
-^(?P<type_name>[a-zA-Z0-9_]+)
-[\t ]*
-(?:
-    \[
-    [\t ]*
-    (?P<unresolved_type_depth>.*)
-    |
-    \]
-    [\t ]*
-    (?P<remaining>.*)
-)
-""")
-
-#matche une descente dans les parentheses
-#
-BRACKET_OPENNING:str =format(r"""
 ^
-\[
+(?P<type_sig>
+    (?P<type_name>[a-zA-Z0-9_]+)
+    [\t ]*
+    (?:
+        \[
+        [\t ]*
+        (?P<depth>
+            (?P<item>
+                [^\[\]"#]*+
+                "[^"]*"
+                |
+                [^\[\]#]*+
+                (?:
+                    \[
+                    (?&item)?
+                    \]
+                )?
+            )*
+            [^\[\]\#\t ]*
+        )
+        [\t ]*
+        \]
+    )?
+)
 [\t ]*
 (?P<remaining>.*)
 """)
 
-#matche une remontee dans les parentheses
+#matche une descente dans les bracket
 #
-BRACKET_CLOSING:str =format(r"""
+BRACKET:str =format(r"""
 ^
+\[
+[\t ]*
+(?P<depth>
+  (?P<item>
+    [^\[\]"#]*+
+    "[^"]*"
+    |
+    [^\[\]#]*+
+    (?:
+      \[
+      (?&item)?
+      \]
+    )?
+  )*
+  [^\[\]\#]*
+)
+[\t ]*
 \]
+[\t ]*
+(?P<remaining>.*)
+""")
+
+COMMA:str=format(r"""
+^,
 [\t ]*
 (?P<remaining>.*)
 """)
