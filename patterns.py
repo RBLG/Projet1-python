@@ -1,8 +1,8 @@
 import regex
 
-#petit trick pour avoir des pattern regex sur plusieurs lignes
-def format(pattern:str)->str:
-    return regex.sub("\r?\n *",'',pattern)
+# petit trick pour avoir des pattern regex sur plusieurs lignes
+def format(pattern: str) -> str:
+    return regex.sub("\r?\n *", "", pattern)
 
 
 #######################################################################################
@@ -11,9 +11,10 @@ def format(pattern:str)->str:
 #
 #######################################################################################
 
-#match le format "  import module_name as module_alias"
-#capture "module_name" et "module_alias"
-IMPORT_AS:str =format(r"""
+# match le format "  import module_name as module_alias"
+# capture "module_name" et "module_alias"
+IMPORT_AS: str = format(
+    r"""
 ^[\t ]*
 import
 [\t ]+
@@ -27,11 +28,13 @@ import
 [\t ]*
 ;?
 (?:\#.*)?$
-""")
+"""
+)
 
-#match le format "  from module_name import ..."
-#capture "module_name" et "..."
-FROM_IMPORT:str =format(r"""
+# match le format "  from module_name import ..."
+# capture "module_name" et "..."
+FROM_IMPORT: str = format(
+    r"""
 ^[\t ]*
 from
 [\t ]+
@@ -43,11 +46,13 @@ import
 [\t ]*
 ;?
 (?:\#.*)?$
-""")
+"""
+)
 
-#match le format "  class class_name(parent_name):"
-#capture "class_name" et "parent_name"
-DEF_CLASS:str =format(r"""
+# match le format "  class class_name(parent_name):"
+# capture "class_name" et "parent_name"
+DEF_CLASS: str = format(
+    r"""
 ^[\t ]*
 class
 [\t ]+
@@ -69,11 +74,13 @@ class
 [\t ]*
 ;?
 (?:\#.*)?$
-""")
+"""
+)
 
-#match le format "  def func_name(params)->return_type:
-#capture "func_name", "params" et "return type"
-DEF_FUNC:str =format(r"""
+# match le format "  def func_name(params)->return_type:
+# capture "func_name", "params" et "return type"
+DEF_FUNC: str = format(
+    r"""
 ^[\t ]*
 def
 [\t ]+
@@ -132,15 +139,17 @@ def
 [\t ]*
 ;?
 (?:\#.*)?$
-""")
+"""
+)
 
 #
-#detecte une ligne vide
-EMPTY:str =format(r"^[\t ]*;?$")
+# detecte une ligne vide
+EMPTY: str = format(r"^[\t ]*;?$")
 
 #
 #
-LONE_KEYWORD:str =format(r"""
+LONE_KEYWORD: str = format(
+    r"""
 ^[\t ]*
 (?P<keyword>
     (?:pass)|
@@ -151,11 +160,13 @@ LONE_KEYWORD:str =format(r"""
 [\t ]*
 ;?
 (?:\#.*)?$
-""")
+"""
+)
 
 #
 #
-RETURN_SET:str =format(r"""
+RETURN_SET: str = format(
+    r"""
 ^[\t ]*
 return
 [\t ]+
@@ -163,45 +174,56 @@ return
 [\t ]*
 ;?
 (?:\#.*)?$
-""")
+"""
+)
 
 # match les if et else if
 #
-IF:str =format(r"""
+IF: str = format(
+    r"""
 
 
-""")
-
-#
-#
-ELSE:str =format(r"""
-
-
-""")
+"""
+)
 
 #
 #
-WHILE:str =format(r"""
+ELSE: str = format(
+    r"""
 
 
-""")
+"""
+)
 
 #
 #
-FOR:str =format(r"""
+WHILE: str = format(
+    r"""
 
 
-""")
+"""
+)
 
-#match une ligne contenant des appels de fonctions, des affectation de variable, etc
 #
-ACTION_LINE=format(r"""
+#
+FOR: str = format(
+    r"""
+
+
+"""
+)
+
+# match une ligne contenant des appels de fonctions, des affectation de variable, etc
+#
+ACTION_LINE = format(
+    r"""
 ^[\t ]*
 (?P<content>.*?)
 [\t ]*
 ;?
 (?:\#.*)?$
-""")
+"""
+)
 
 #######################################################################################
 #
@@ -209,9 +231,10 @@ ACTION_LINE=format(r"""
 #
 #######################################################################################
 
-#matche 
+# matche
 #
-DEEP_PARENTHESIS:str=format("""
+DEEP_PARENTHESIS: str = format(
+    """
 ^\(
 [\t ]*
 (?P<depth>
@@ -232,20 +255,24 @@ DEEP_PARENTHESIS:str=format("""
 \)
 [\t ]*
 (?P<remaining>.*)
-""")
+"""
+)
 
 
 #
 #
-CHAIN:str =format(r"""
+CHAIN: str = format(
+    r"""
 ^\.
 [\t ]*
 (?P<remaining>.*)
-""")
+"""
+)
 
 #
 #
-OPERATOR:str =format(r"""
+OPERATOR: str = format(
+    r"""
 ^
 (?P<operator>
     &|
@@ -271,11 +298,13 @@ OPERATOR:str =format(r"""
 )
 [\t ]*
 (?P<remaining>.*)
-""")
+"""
+)
 
-#match une declaration ou un appel a une variable
+# match une declaration ou un appel a une variable
 #
-VAR_USE:str =format(r"""
+VAR_USE: str = format(
+    r"""
 ^(?P<var_name>[a-zA-Z0-9_]+)
 (?:
     [\t ]*
@@ -310,11 +339,13 @@ VAR_USE:str =format(r"""
 )?
 [\t ]*
 (?P<remaining>.*)
-""")
+"""
+)
 
-#match une declaration ou un appel a une variable
+# match une declaration ou un appel a une variable
 #
-TYPE_DEPTH:str =format(r"""
+TYPE_DEPTH: str = format(
+    r"""
 ^
 (?P<type_sig>
     (?P<type_name>[a-zA-Z0-9_]+)
@@ -342,11 +373,13 @@ TYPE_DEPTH:str =format(r"""
 )
 [\t ]*
 (?P<remaining>.*)
-""")
+"""
+)
 
-#matche une descente dans les bracket
+# matche une descente dans les bracket
 #
-BRACKET:str =format(r"""
+BRACKET: str = format(
+    r"""
 ^
 \[
 [\t ]*
@@ -368,27 +401,33 @@ BRACKET:str =format(r"""
 \]
 [\t ]*
 (?P<remaining>.*)
-""")
+"""
+)
 
-COMMA:str=format(r"""
+COMMA: str = format(
+    r"""
 ^,
 [\t ]*
 (?P<remaining>.*)
-""")
+"""
+)
 
 
 #
 #
-STR_LIT:str =format(r"""
+STR_LIT: str = format(
+    r"""
 ^
 (?P<literal>r?\".*?\")
 [\t ]*
 (?P<remaining>.*)
-""")
+"""
+)
 
 #
 #
-NUM_LIT:str =format(r"""
+NUM_LIT: str = format(
+    r"""
 ^(?P<literal>
     0x[0-9a-fA-F]+|
     0b[0-1]+|
@@ -397,5 +436,5 @@ NUM_LIT:str =format(r"""
 )
 [\t ]*
 (?P<remaining>.*)
-""")
-
+"""
+)

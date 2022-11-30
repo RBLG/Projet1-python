@@ -1,8 +1,14 @@
 from typing import List
 import util
-import codeparser
+import codeparser as cp
 
-args=util.get_args()
-path=args.path
+# on recupere les arguments passe dans la commande
+args = util.get_args()
+path = args.path
 
-actions:List[codeparser.Problem]=codeparser.parse_file(path)
+# on lis le fichier
+issues: List[cp.Problem] = cp.parse_file(path)
+
+# on retourne les problemes a la console
+for issue in issues:
+    print("ligne", issue.line, ":", issue.description, "dans :", issue.code)
